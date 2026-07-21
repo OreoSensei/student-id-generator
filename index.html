@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student ID Card Generator</title>
+    <!-- Tailwind CSS for rapid, modern UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for a polished feel */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-800">
+
+    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        <!-- Left Column: Data Entry Form -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+            <h2 class="text-2xl font-bold mb-6 text-slate-700">Student Details</h2>
+            
+            <!-- Exact warning replicated from frontend format.jpeg -->
+            <div class="bg-green-100 text-green-800 text-sm p-3 rounded-lg mb-6 text-center font-medium border border-green-200">
+                ( Photos must be in size below 50kb )
+            </div>
+
+            <form id="idForm" class="space-y-5" onsubmit="event.preventDefault(); generateID();">
+                
+                <!-- 1. Template Upload -->
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-slate-600">Step 1: Upload Blank ID Template</label>
+                    <input type="file" id="templateInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-md p-1 transition" required>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <!-- 2. Student Photo & Preview -->
+                <div class="flex items-start space-x-4">
+                    <div class="flex-1">
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Step 2: Student Photo</label>
+                        <input type="file" id="photoInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-md p-1 transition" required>
+                    </div>
+                    <div class="w-24 h-32 border-2 border-dashed border-slate-300 rounded-md flex items-center justify-center overflow-hidden bg-slate-50">
+                        <img id="photoPreview" src="" alt="Selected Image Preview" class="hidden object-cover w-full h-full">
+                        <span id="photoPlaceholder" class="text-xs text-slate-400 text-center px-2">Image Preview</span>
+                    </div>
+                </div>
+
+                <!-- 3. Text Fields based on frontend format.jpeg -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Name:</label>
+                        <input type="text" id="name" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Father Name:</label>
+                        <input type="text" id="fatherName" placeholder="Ex: without Surname" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">PEN No:</label>
+                        <input type="text" id="penNo" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Date of Birth:</label>
+                        <input type="date" id="dob" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Class:</label>
+                        <input type="text" id="classLevel" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">Cell No:</label>
+                        <input type="tel" id="cellNo" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-1 text-slate-600">DISE:</label>
+                        <input type="text" id="dise" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2 flex flex-col space-y-3">
+                    <button type="submit" class="w-full bg-slate-800 text-white font-semibold py-2.5 rounded-md hover:bg-slate-700 transition shadow-sm">Generate & Preview ID</button>
+                    <button type="button" id="downloadBtn" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-md hover:bg-blue-700 transition shadow-sm opacity-50 cursor-not-allowed" disabled>Download ID Card</button>
+                    
+                    <div class="text-center mt-2">
+                        <a href="#" class="text-sm text-blue-600 hover:underline cursor-pointer font-medium">Photo Resizer ( 50kb )</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Right Column: Live Canvas Preview -->
+        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col">
+            <h2 class="text-2xl font-bold mb-6 text-slate-700">ID Preview</h2>
+            <div class="flex-1 overflow-auto bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center min-h-[500px] p-4">
+                <canvas id="idCanvas" class="max-w-full h-auto shadow-lg hidden bg-white"></canvas>
+                <p id="canvasPlaceholder" class="text-slate-400 text-center px-4">Upload a template, fill out the form, and click "Generate" to see the result here.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Application Logic -->
+    <script>
+        const photoInput = document.getElementById('photoInput');
+        const photoPreview = document.getElementById('photoPreview');
+        const photoPlaceholder = document.getElementById('photoPlaceholder');
+        const templateInput = document.getElementById('templateInput');
+        const canvas = document.getElementById('idCanvas');
+        const ctx = canvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+
+        let uploadedPhoto = new Image();
+        let uploadedTemplate = new Image();
+
+        // 1. Handle Student Photo Preview & 50kb Check
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // 50kb = 51200 bytes
+                if (file.size > 51200) {
+                    alert('Warning: Image size is over 50kb. Please use the Photo Resizer.');
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    photoPreview.src = event.target.result;
+                    photoPreview.classList.remove('hidden');
+                    photoPlaceholder.classList.add('hidden');
+                    uploadedPhoto.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 2. Handle ID Template Load
+        templateInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedTemplate.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 3. Render Graphics and Text to Canvas
+        function generateID() {
+            if (!uploadedTemplate.src) {
+                alert('Please upload the blank ID card template first.');
+                return;
+            }
+
+            // Sync canvas dimensions to the uploaded high-res template
+            canvas.width = uploadedTemplate.width;
+            canvas.height = uploadedTemplate.height;
+
+            // Draw the background template
+            ctx.drawImage(uploadedTemplate, 0, 0, canvas.width, canvas.height);
+
+            // --- CONFIGURATION ZONE: Adjust these coordinates based on your specific ID template ---
+            
+            // Photo placement (X, Y, Width, Height)
+            if (uploadedPhoto.src) {
+                ctx.drawImage(uploadedPhoto, 50, 150, 200, 250); 
+            }
+
+            // Text Typography Setup
+            ctx.font = 'bold 24px Arial'; // Adjust size and font family as needed
+            ctx.fillStyle = '#1e293b';    // Dark slate text color
+            
+            // Text Placement Coordinates
+            const textStartX = 300;       // X-axis starting position for text
+            let textStartY = 180;         // Y-axis starting position for the first line
+            const lineSpacing = 45;       // Space between each line of text
+            
+            // -------------------------------------------------------------------------------------
+
+            // Fetch current form values
+            const data = {
+                name: document.getElementById('name').value,
+                fatherName: document.getElementById('fatherName').value,
+                penNo: document.getElementById('penNo').value,
+                dob: document.getElementById('dob').value,
+                classLevel: document.getElementById('classLevel').value,
+                cellNo: document.getElementById('cellNo').value,
+                dise: document.getElementById('dise').value
+            };
+
+            // Draw Data Text onto Canvas
+            ctx.fillText(`Name: ${data.name}`, textStartX, textStartY);
+            ctx.fillText(`Father Name: ${data.fatherName}`, textStartX, textStartY + lineSpacing * 1);
+            ctx.fillText(`PEN No: ${data.penNo}`, textStartX, textStartY + lineSpacing * 2);
+            
+            // Format Date (Optional: Converts YYYY-MM-DD to DD/MM/YYYY)
+            const dateObj = new Date(data.dob);
+            const formattedDate = dateObj.toLocaleDateString('en-GB'); 
+            ctx.fillText(`D.O.B: ${formattedDate}`, textStartX, textStartY + lineSpacing * 3);
+            
+            ctx.fillText(`Class: ${data.classLevel}`, textStartX, textStartY + lineSpacing * 4);
+            ctx.fillText(`Cell No: ${data.cellNo}`, textStartX, textStartY + lineSpacing * 5);
+            ctx.fillText(`DISE: ${data.dise}`, textStartX, textStartY + lineSpacing * 6);
+
+            // Reveal Canvas and enable download
+            canvas.classList.remove('hidden');
+            canvasPlaceholder.classList.add('hidden');
+            
+            downloadBtn.disabled = false;
+            downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+
+        // 4. Handle Image Download
+        downloadBtn.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = `ID_Card_${document.getElementById('name').value.replace(/\s+/g, '_')}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>

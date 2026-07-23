@@ -3,223 +3,551 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student ID Card Generator</title>
-    <!-- Tailwind CSS for rapid, modern UI styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>School ID Card Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* Custom scrollbar for a polished feel */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        :root {
+            --brand-green: #008744;
+            --brand-yellow: #f8b818;
+            --text-dark: #222222;
+            --text-muted: #555555;
+            --card-width: 3.375in;
+            --card-height: 2.125in;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px;
+            background-color: #e2e8f0;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        /* --- Input Form Panel --- */
+        .controls-panel {
+            background: #ffffff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 360px;
+        }
+
+        .controls-panel h2 {
+            margin-top: 0;
+            color: var(--brand-green);
+            font-size: 1.3rem;
+            border-bottom: 2px solid #edf2f7;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            background-color: #ffffff;
+        }
+
+        .print-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--brand-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .print-btn:hover {
+            background-color: #006b35;
+        }
+
+        /* --- Preview Container --- */
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .preview-panel h2 {
+            margin: 0;
+            color: var(--brand-green);
+            font-size: 1.3rem;
+        }
+
+        /* --- ID Card Outer Container --- */
+        .id-card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #cbd5e0;
+        }
+
+        /* --- Header Section --- */
+        .card-header-wrapper {
+            position: relative;
+            height: 52px;
+            width: 100%;
+            background-color: #ffffff;
+        }
+
+        .header-top-banner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 32px;
+            background-color: var(--brand-green);
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 14px;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .header-yellow-banner {
+            position: absolute;
+            top: 32px;
+            left: 0;
+            width: 100%;
+            height: 16px;
+            background-color: var(--brand-yellow);
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 14px;
+            color: #1a1a1a;
+            font-size: 0.48rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .emblem-pod {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 86px;
+            height: 56px;
+            background-color: var(--brand-green);
+            border-bottom-right-radius: 42px;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding-right: 6px;
+            padding-bottom: 4px;
+            box-shadow: 2px 2px 0px var(--brand-yellow);
+        }
+
+        .emblem-circle {
+            width: 42px;
+            height: 42px;
+            background: #ffffff;
+            border-radius: 50%;
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+            padding: 2px;
+        }
+
+        .emblem-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* --- Card Body Layout --- */
+        .card-body {
+            flex: 1;
+            display: flex;
+            padding: 10px 10px;
+            gap: 8px;
+            align-items: flex-start;
+        }
+
+        .left-column {
+            width: 72px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 2px;
+        }
+
+        .photo-box {
+            width: 68px;
+            height: 72px;
+            border: 1px solid #a0aec0;
+            background-color: #edf2f7;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .signature-area {
+            text-align: center;
+            margin-top: 4px;
+            width: 100%;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #222222;
+            width: 55px;
+            height: 14px;
+            margin: 0 auto 2px auto;
+        }
+
+        .signature-title {
+            font-size: 0.48rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .right-column {
+            flex: 1;
+            padding-top: 1px;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.55rem;
+            line-height: 1.2;
+        }
+
+        .info-table td {
+            padding: 1px 0;
+            vertical-align: top;
+        }
+
+        .info-table .label {
+            font-weight: 700;
+            color: var(--text-dark);
+            width: 75px;
+            white-space: nowrap;
+        }
+
+        .info-table .colon {
+            width: 8px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .info-table .value {
+            font-weight: 800;
+            color: var(--brand-green);
+            word-break: break-word;
+        }
+
+        /* --- Card Footer --- */
+        .card-footer {
+            background-color: var(--brand-green);
+            height: 25px;
+            color: #ffffff;
+            font-size: 0.58rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            padding: 0 8px;
+        }
+
+        /* --- Print Setup --- */
+        @media print {
+            body {
+                background: transparent;
+                padding: 0;
+                margin: 0;
+            }
+            .controls-panel, .preview-panel h2 {
+                display: none;
+            }
+            .id-card {
+                box-shadow: none;
+                border: 1px solid #a0aec0;
+            }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen p-4 md:p-8 font-sans text-slate-800">
+<body>
 
-    <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Configuration Form -->
+    <div class="controls-panel">
+        <h2>Card Generator</h2>
+        <div class="form-group">
+            <label for="inputSchool">School Name</label>
+            <input type="text" id="inputSchool" value="AP GOVT HIGH SCHOOL">
+        </div>
+        <div class="form-group">
+            <label for="inputYear">Session / Year Tag</label>
+            <input type="text" id="inputYear" value="IDENTITY CARD 2026-27">
+        </div>
+        <div class="form-group">
+            <label for="inputName">Student Name</label>
+            <input type="text" id="inputName" value="ANAMIKA PANDEY">
+        </div>
+        <div class="form-group">
+            <label for="inputFather">Father's Name</label>
+            <input type="text" id="inputFather" value="Mr. Naveen Pandey">
+        </div>
+        <div class="form-group">
+            <label for="inputClass">Class</label>
+            <input type="text" id="inputClass" value="VIII A">
+        </div>
         
-        <!-- Left Column: Data Entry Form -->
-        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
-            <h2 class="text-2xl font-bold mb-6 text-slate-700">Student Details</h2>
-            
-            <!-- Exact warning replicated from frontend format.jpeg -->
-            <div class="bg-green-100 text-green-800 text-sm p-3 rounded-lg mb-6 text-center font-medium border border-green-200">
-                ( Photos must be in size below 50kb )
-            </div>
-
-            <form id="idForm" class="space-y-5" onsubmit="event.preventDefault(); generateID();">
-                
-                <!-- 1. Template Upload -->
-                <div>
-                    <label class="block text-sm font-semibold mb-1 text-slate-600">Step 1: Upload Blank ID Template</label>
-                    <input type="file" id="templateInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-md p-1 transition" required>
-                </div>
-
-                <hr class="border-slate-100">
-
-                <!-- 2. Student Photo & Preview -->
-                <div class="flex items-start space-x-4">
-                    <div class="flex-1">
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Step 2: Student Photo</label>
-                        <input type="file" id="photoInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border border-slate-200 rounded-md p-1 transition" required>
-                    </div>
-                    <div class="w-24 h-32 border-2 border-dashed border-slate-300 rounded-md flex items-center justify-center overflow-hidden bg-slate-50">
-                        <img id="photoPreview" src="" alt="Selected Image Preview" class="hidden object-cover w-full h-full">
-                        <span id="photoPlaceholder" class="text-xs text-slate-400 text-center px-2">Image Preview</span>
-                    </div>
-                </div>
-
-                <!-- 3. Text Fields based on frontend format.jpeg -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Name:</label>
-                        <input type="text" id="name" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Father Name:</label>
-                        <input type="text" id="fatherName" placeholder="Ex: without Surname" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">PEN No:</label>
-                        <input type="text" id="penNo" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Date of Birth:</label>
-                        <input type="date" id="dob" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Class:</label>
-                        <input type="text" id="classLevel" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">Cell No:</label>
-                        <input type="tel" id="cellNo" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-sm font-semibold mb-1 text-slate-600">DISE:</label>
-                        <input type="text" id="dise" class="w-full border border-slate-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition" required>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="pt-2 flex flex-col space-y-3">
-                    <button type="submit" class="w-full bg-slate-800 text-white font-semibold py-2.5 rounded-md hover:bg-slate-700 transition shadow-sm">Generate & Preview ID</button>
-                    <button type="button" id="downloadBtn" class="w-full bg-blue-600 text-white font-semibold py-2.5 rounded-md hover:bg-blue-700 transition shadow-sm opacity-50 cursor-not-allowed" disabled>Download ID Card</button>
-                    
-                    <div class="text-center mt-2">
-                        <a href="#" class="text-sm text-blue-600 hover:underline cursor-pointer font-medium">Photo Resizer ( 50kb )</a>
-                    </div>
-                </div>
-            </form>
+        <!-- Calendar Date Picker -->
+        <div class="form-group">
+            <label for="inputDob">Date of Birth</label>
+            <input type="date" id="inputDob" value="2012-05-19">
         </div>
 
-        <!-- Right Column: Live Canvas Preview -->
-        <div class="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 flex flex-col">
-            <h2 class="text-2xl font-bold mb-6 text-slate-700">ID Preview</h2>
-            <div class="flex-1 overflow-auto bg-slate-100 rounded-lg border border-slate-200 flex items-center justify-center min-h-[500px] p-4">
-                <canvas id="idCanvas" class="max-w-full h-auto shadow-lg hidden bg-white"></canvas>
-                <p id="canvasPlaceholder" class="text-slate-400 text-center px-4">Upload a template, fill out the form, and click "Generate" to see the result here.</p>
+        <!-- Blood Group Field -->
+        <div class="form-group">
+            <label for="inputBlood">Blood Group</label>
+            <select id="inputBlood">
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+" selected>O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="inputAddress">Address</label>
+            <input type="text" id="inputAddress" value="Civil Lines, Kakinada, A.P.">
+        </div>
+        <div class="form-group">
+            <label for="inputContact">Contact No.</label>
+            <input type="text" id="inputContact" value="+91 98765-43210">
+        </div>
+        
+        <!-- Separate Footer Inputs -->
+        <div class="form-group">
+            <label for="inputMandal">Mandal</label>
+            <input type="text" id="inputMandal" value="Kakinada Urban">
+        </div>
+        <div class="form-group">
+            <label for="inputDistrict">District</label>
+            <input type="text" id="inputDistrict" value="Kakinada">
+        </div>
+        <div class="form-group">
+            <label for="inputDise">DISE Number</label>
+            <input type="text" id="inputDise" value="28140100101">
+        </div>
+
+        <!-- Photo Input with Type Rules -->
+        <div class="form-group">
+            <label for="inputPhoto">Student Photo (JPG, JPEG, PNG)</label>
+            <input type="file" id="inputPhoto" accept="image/jpeg, image/jpg, image/png">
+        </div>
+        <button class="print-btn" onclick="window.print()">Print ID Card</button>
+    </div>
+
+    <!-- Real-time Preview Area -->
+    <div class="preview-panel">
+        <h2>Live Preview</h2>
+        
+        <div class="id-card">
+            <!-- Header Section -->
+            <div class="card-header-wrapper">
+                <div class="emblem-pod">
+                    <div class="emblem-circle">
+                        <img id="emblemLogo" src="./Emblem_of_Andhra_Pradesh.svg" alt="AP Emblem">
+                    </div>
+                </div>
+                <div class="header-top-banner" id="displaySchool">
+                    AP GOVT HIGH SCHOOL
+                </div>
+                <div class="header-yellow-banner" id="displayYear">
+                    IDENTITY CARD 2026-27
+                </div>
             </div>
+
+            <!-- Body Section -->
+            <div class="card-body">
+                <div class="left-column">
+                    <div class="photo-box">
+                        <img id="displayPhoto" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" alt="Student Photo">
+                    </div>
+                    <div class="signature-area">
+                        <div class="signature-line"></div>
+                        <div class="signature-title">Principal</div>
+                    </div>
+                </div>
+
+                <div class="right-column">
+                    <table class="info-table">
+                        <tr>
+                            <td class="label">Name</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayName">ANAMIKA PANDEY</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Father's Name</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayFather">Mr. Naveen Pandey</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Class</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayClass">VIII A</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Date of Birth</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayDob">19-05-2012</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Blood Group</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayBlood">O+</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Address</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayAddress">Civil Lines, Kakinada, A.P.</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Contact No.</td>
+                            <td class="colon">:</td>
+                            <td class="value" id="displayContact">+91 98765-43210</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Dynamic Footer Section -->
+            <div class="card-footer" id="displayFooter"></div>
         </div>
     </div>
 
-    <!-- Core Application Logic -->
+    <!-- JavaScript Field Binding & Logic -->
     <script>
-        const photoInput = document.getElementById('photoInput');
-        const photoPreview = document.getElementById('photoPreview');
-        const photoPlaceholder = document.getElementById('photoPlaceholder');
-        const templateInput = document.getElementById('templateInput');
-        const canvas = document.getElementById('idCanvas');
-        const ctx = canvas.getContext('2d');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+        const fieldBindings = {
+            'inputSchool': 'displaySchool',
+            'inputYear': 'displayYear',
+            'inputName': 'displayName',
+            'inputFather': 'displayFather',
+            'inputClass': 'displayClass',
+            'inputBlood': 'displayBlood',
+            'inputAddress': 'displayAddress',
+            'inputContact': 'displayContact'
+        };
 
-        let uploadedPhoto = new Image();
-        let uploadedTemplate = new Image();
+        // Bind standard text & dropdown fields
+        Object.keys(fieldBindings).forEach(inputId => {
+            const input = document.getElementById(inputId);
+            const output = document.getElementById(fieldBindings[inputId]);
+            
+            input.addEventListener('input', (e) => {
+                output.textContent = e.target.value;
+            });
+            input.addEventListener('change', (e) => {
+                output.textContent = e.target.value;
+            });
+        });
 
-        // 1. Handle Student Photo Preview & 50kb Check
-        photoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // 50kb = 51200 bytes
-                if (file.size > 51200) {
-                    alert('Warning: Image size is over 50kb. Please use the Photo Resizer.');
-                }
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    photoPreview.src = event.target.result;
-                    photoPreview.classList.remove('hidden');
-                    photoPlaceholder.classList.add('hidden');
-                    uploadedPhoto.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
+        // Date Picker Handler with DD-MM-YYYY formatting
+        document.getElementById('inputDob').addEventListener('change', function(e) {
+            if (e.target.value) {
+                const parts = e.target.value.split('-');
+                document.getElementById('displayDob').textContent = `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
         });
 
-        // 2. Handle ID Template Load
-        templateInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    uploadedTemplate.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // 3. Render Graphics and Text to Canvas
-        function generateID() {
-            if (!uploadedTemplate.src) {
-                alert('Please upload the blank ID card template first.');
-                return;
-            }
-
-            // Sync canvas dimensions to the uploaded high-res template
-            canvas.width = uploadedTemplate.width;
-            canvas.height = uploadedTemplate.height;
-
-            // Draw the background template
-            ctx.drawImage(uploadedTemplate, 0, 0, canvas.width, canvas.height);
-
-            // --- CONFIGURATION ZONE: Adjust these coordinates based on your specific ID template ---
+        // Combined Footer Formatting Logic
+        function updateFooter() {
+            const mandal = document.getElementById('inputMandal').value.trim();
+            const district = document.getElementById('inputDistrict').value.trim();
+            const dise = document.getElementById('inputDise').value.trim();
             
-            // Photo placement (X, Y, Width, Height)
-            if (uploadedPhoto.src) {
-                ctx.drawImage(uploadedPhoto, 50, 150, 200, 250); 
-            }
-
-            // Text Typography Setup
-            ctx.font = 'bold 24px Arial'; // Adjust size and font family as needed
-            ctx.fillStyle = '#1e293b';    // Dark slate text color
-            
-            // Text Placement Coordinates
-            const textStartX = 300;       // X-axis starting position for text
-            let textStartY = 180;         // Y-axis starting position for the first line
-            const lineSpacing = 45;       // Space between each line of text
-            
-            // -------------------------------------------------------------------------------------
-
-            // Fetch current form values
-            const data = {
-                name: document.getElementById('name').value,
-                fatherName: document.getElementById('fatherName').value,
-                penNo: document.getElementById('penNo').value,
-                dob: document.getElementById('dob').value,
-                classLevel: document.getElementById('classLevel').value,
-                cellNo: document.getElementById('cellNo').value,
-                dise: document.getElementById('dise').value
-            };
-
-            // Draw Data Text onto Canvas
-            ctx.fillText(`Name: ${data.name}`, textStartX, textStartY);
-            ctx.fillText(`Father Name: ${data.fatherName}`, textStartX, textStartY + lineSpacing * 1);
-            ctx.fillText(`PEN No: ${data.penNo}`, textStartX, textStartY + lineSpacing * 2);
-            
-            // Format Date (Optional: Converts YYYY-MM-DD to DD/MM/YYYY)
-            const dateObj = new Date(data.dob);
-            const formattedDate = dateObj.toLocaleDateString('en-GB'); 
-            ctx.fillText(`D.O.B: ${formattedDate}`, textStartX, textStartY + lineSpacing * 3);
-            
-            ctx.fillText(`Class: ${data.classLevel}`, textStartX, textStartY + lineSpacing * 4);
-            ctx.fillText(`Cell No: ${data.cellNo}`, textStartX, textStartY + lineSpacing * 5);
-            ctx.fillText(`DISE: ${data.dise}`, textStartX, textStartY + lineSpacing * 6);
-
-            // Reveal Canvas and enable download
-            canvas.classList.remove('hidden');
-            canvasPlaceholder.classList.add('hidden');
-            
-            downloadBtn.disabled = false;
-            downloadBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            document.getElementById('displayFooter').textContent = `${mandal}, ${district}, DISE: ${dise}`;
         }
 
-        // 4. Handle Image Download
-        downloadBtn.addEventListener('click', function() {
-            const link = document.createElement('a');
-            link.download = `ID_Card_${document.getElementById('name').value.replace(/\s+/g, '_')}.png`;
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+        ['inputMandal', 'inputDistrict', 'inputDise'].forEach(id => {
+            document.getElementById(id).addEventListener('input', updateFooter);
+        });
+
+        // Initial setup
+        updateFooter();
+
+        // Photo Upload Handling with Extension/Type Validation
+        document.getElementById('inputPhoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+                
+                if (!allowedTypes.includes(file.type)) {
+                    alert('Invalid file format! Please upload only JPEG, JPG, or PNG images.');
+                    this.value = ''; // Reset input
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('displayPhoto').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
         });
     </script>
 </body>

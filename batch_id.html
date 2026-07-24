@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School ID Card Generator</title>
+    <title>School ID Card Generator - Batch Queue</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -37,7 +37,7 @@
             padding: 24px;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            width: 360px;
+            width: 380px;
         }
 
         .controls-panel h2 {
@@ -70,6 +70,31 @@
             background-color: #ffffff;
         }
 
+        .form-group input:focus, .form-group select:focus {
+            border-color: var(--brand-green);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 135, 68, 0.15);
+        }
+
+        /* Action Buttons */
+        .queue-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #2b6cb0;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .queue-btn:hover {
+            background-color: #2c5282;
+        }
+
         .print-btn {
             width: 100%;
             padding: 12px;
@@ -88,12 +113,55 @@
             background-color: #006b35;
         }
 
+        /* Saved Entries Queue Table */
+        .queue-section {
+            margin-top: 20px;
+            border-top: 2px solid #edf2f7;
+            padding-top: 12px;
+        }
+
+        .queue-section h3 {
+            font-size: 0.95rem;
+            color: var(--brand-green);
+            margin: 0 0 8px 0;
+        }
+
+        .queue-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.78rem;
+        }
+
+        .queue-table th, .queue-table td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .queue-table th {
+            background-color: #f7fafc;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+        }
+
         /* --- Preview Container --- */
         .preview-panel {
             display: flex;
             flex-direction: column;
             gap: 20px;
             align-items: center;
+            position: sticky;
+            top: 20px;
+            align-self: flex-start;
         }
 
         .preview-panel h2 {
@@ -114,6 +182,8 @@
             display: flex;
             flex-direction: column;
             border: 1px solid #cbd5e0;
+            break-inside: avoid;
+            page-break-inside: avoid;
         }
 
         /* --- Header Section --- */
@@ -303,6 +373,14 @@
             padding: 0 8px;
         }
 
+        /* --- Batch Multi-Card Container --- */
+        .batch-grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
         /* --- Print Setup --- */
         @media print {
             body {
@@ -316,6 +394,9 @@
             .id-card {
                 box-shadow: none;
                 border: 1px solid #a0aec0;
+            }
+            .batch-grid-container {
+                gap: 15px;
             }
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -331,10 +412,10 @@
         <h2>Card Generator</h2>
 
         <div style="display: flex; gap: 10px; margin-bottom: 18px;">
-            <a href="index.html" style="flex: 1; text-align: center; padding: 8px; background: #008744; color: white; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #008744;">Single ID</a>
-            <a href="batch_id.html" style="flex: 1; text-align: center; padding: 8px; background: #ffffff; color: #555555; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #cbd5e0; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='#ffffff'">Batch Queue</a>
+            <a href="index.html" style="flex: 1; text-align: center; padding: 8px; background: #ffffff; color: #555555; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #cbd5e0; transition: background 0.2s;" onmouseover="this.style.background='#f7fafc'" onmouseout="this.style.background='#ffffff'">Single ID</a>
+            <a href="id1.html" style="flex: 1; text-align: center; padding: 8px; background: #008744; color: white; text-decoration: none; border-radius: 6px; font-size: 0.85rem; font-weight: 700; border: 1px solid #008744;">Batch Queue</a>
         </div>
-
+        
         <div class="form-group">
             <label for="inputSchool">School Name</label>
             <input type="text" id="inputSchool" value="AP GOVT HIGH SCHOOL">
@@ -405,14 +486,35 @@
             <label for="inputPhoto">Student Photo (JPG, JPEG, PNG)</label>
             <input type="file" id="inputPhoto" accept="image/jpeg, image/jpg, image/png">
         </div>
-        <button class="print-btn" onclick="window.print()">Print ID Card</button>
+
+        <!-- Action Controls -->
+        <button type="button" class="queue-btn" id="btnAddPerson">Save / Add Person to List</button>
+        <button type="button" class="print-btn" onclick="window.print()">Print Single Preview</button>
+        <button type="button" class="print-btn" id="btnGenerateAll" style="display:none; background-color: #276749;">
+            Generate & Print All Cards (<span id="queueCount">0</span>)
+        </button>
+
+        <!-- Queue Summary Section -->
+        <div class="queue-section" id="queueContainer" style="display:none;">
+            <h3>Saved Entries Queue (<span id="queueTotal">0</span>)</h3>
+            <table class="queue-table" id="queueTable">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Class</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
     <!-- Real-time Preview Area -->
-    <div class="preview-panel">
+    <div class="preview-panel" id="previewArea">
         <h2>Live Preview</h2>
         
-        <div class="id-card">
+        <div class="id-card" id="singleCardPreview">
             <!-- Header Section -->
             <div class="card-header-wrapper">
                 <div class="emblem-pod">
@@ -486,8 +588,11 @@
         </div>
     </div>
 
-    <!-- JavaScript Field Binding & Logic -->
+    <!-- JavaScript State & Logic -->
     <script>
+        // In-memory queue state array
+        let studentList = [];
+
         const fieldBindings = {
             'inputSchool': 'displaySchool',
             'inputYear': 'displayYear',
@@ -499,20 +604,16 @@
             'inputContact': 'displayContact'
         };
 
-        // Bind standard text & dropdown fields
+        // Bind live preview text fields
         Object.keys(fieldBindings).forEach(inputId => {
             const input = document.getElementById(inputId);
             const output = document.getElementById(fieldBindings[inputId]);
             
-            input.addEventListener('input', (e) => {
-                output.textContent = e.target.value;
-            });
-            input.addEventListener('change', (e) => {
-                output.textContent = e.target.value;
-            });
+            input.addEventListener('input', (e) => output.textContent = e.target.value);
+            input.addEventListener('change', (e) => output.textContent = e.target.value);
         });
 
-        // Date Picker Handler with DD-MM-YYYY formatting
+        // Date Picker Handler (DD-MM-YYYY)
         document.getElementById('inputDob').addEventListener('change', function(e) {
             if (e.target.value) {
                 const parts = e.target.value.split('-');
@@ -533,10 +634,9 @@
             document.getElementById(id).addEventListener('input', updateFooter);
         });
 
-        // Initial setup
         updateFooter();
 
-        // Photo Upload Handling with Extension/Type Validation
+        // Photo Upload Handling & Extension Validation
         document.getElementById('inputPhoto').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -544,7 +644,7 @@
                 
                 if (!allowedTypes.includes(file.type)) {
                     alert('Invalid file format! Please upload only JPEG, JPG, or PNG images.');
-                    this.value = ''; // Reset input
+                    this.value = '';
                     return;
                 }
 
@@ -554,6 +654,140 @@
                 };
                 reader.readAsDataURL(file);
             }
+        });
+
+        // --- BATCH QUEUE SYSTEM LOGIC ---
+
+        function formatDate(isoDate) {
+            if (!isoDate) return '';
+            const parts = isoDate.split('-');
+            return `${parts[2]}-${parts[1]}-${parts[0]}`;
+        }
+
+        // Add Current Form Values to Saved Queue
+        document.getElementById('btnAddPerson').addEventListener('click', function() {
+            const nameVal = document.getElementById('inputName').value.trim();
+            if (!nameVal) {
+                alert("Please enter the student's name before saving.");
+                return;
+            }
+
+            const record = {
+                id: Date.now(),
+                school: document.getElementById('inputSchool').value,
+                year: document.getElementById('inputYear').value,
+                name: nameVal,
+                father: document.getElementById('inputFather').value.trim(),
+                className: document.getElementById('inputClass').value.trim(),
+                dob: formatDate(document.getElementById('inputDob').value),
+                blood: document.getElementById('inputBlood').value,
+                address: document.getElementById('inputAddress').value.trim(),
+                contact: document.getElementById('inputContact').value.trim(),
+                mandal: document.getElementById('inputMandal').value.trim(),
+                district: document.getElementById('inputDistrict').value.trim(),
+                dise: document.getElementById('inputDise').value.trim(),
+                photoSrc: document.getElementById('displayPhoto').src
+            };
+
+            studentList.push(record);
+            updateQueueUI();
+            resetStudentFields();
+        });
+
+        // Render Saved Entries Summary Table
+        function updateQueueUI() {
+            const tbody = document.querySelector('#queueTable tbody');
+            tbody.innerHTML = '';
+
+            studentList.forEach(student => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.className}</td>
+                    <td><button class="delete-btn" onclick="removeStudent(${student.id})">Delete</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const count = studentList.length;
+            document.getElementById('queueCount').textContent = count;
+            document.getElementById('queueTotal').textContent = count;
+
+            document.getElementById('queueContainer').style.display = count > 0 ? 'block' : 'none';
+            document.getElementById('btnGenerateAll').style.display = count > 0 ? 'block' : 'none';
+        }
+
+        // Remove Individual Student from Queue
+        function removeStudent(id) {
+            studentList = studentList.filter(s => s.id !== id);
+            updateQueueUI();
+        }
+
+        // Reset Student Specific Fields (Retains School/Location Details)
+        function resetStudentFields() {
+            document.getElementById('inputName').value = '';
+            document.getElementById('inputFather').value = '';
+            document.getElementById('inputAddress').value = '';
+            document.getElementById('inputContact').value = '';
+            document.getElementById('inputPhoto').value = '';
+            document.getElementById('displayPhoto').src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80';
+            
+            document.getElementById('displayName').textContent = '';
+            document.getElementById('displayFather').textContent = '';
+            document.getElementById('displayAddress').textContent = '';
+            document.getElementById('displayContact').textContent = '';
+        }
+
+        // Generate Multi-Card Batch Grid & Print
+        document.getElementById('btnGenerateAll').addEventListener('click', function() {
+            const previewArea = document.getElementById('previewArea');
+            previewArea.innerHTML = '<h2>Batch Print Preview</h2>';
+
+            const grid = document.createElement('div');
+            grid.className = 'batch-grid-container';
+
+            studentList.forEach(s => {
+                const cardHTML = `
+                    <div class="id-card">
+                        <div class="card-header-wrapper">
+                            <div class="emblem-pod">
+                                <div class="emblem-circle">
+                                    <img src="./Emblem_of_Andhra_Pradesh.svg" alt="AP Emblem">
+                                </div>
+                            </div>
+                            <div class="header-top-banner">${s.school}</div>
+                            <div class="header-yellow-banner">${s.year}</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="left-column">
+                                <div class="photo-box">
+                                    <img src="${s.photoSrc}">
+                                </div>
+                                <div class="signature-area">
+                                    <div class="signature-line"></div>
+                                    <div class="signature-title">Principal</div>
+                                </div>
+                            </div>
+                            <div class="right-column">
+                                <table class="info-table">
+                                    <tr><td class="label">Name</td><td class="colon">:</td><td class="value">${s.name}</td></tr>
+                                    <tr><td class="label">Father's Name</td><td class="colon">:</td><td class="value">${s.father}</td></tr>
+                                    <tr><td class="label">Class</td><td class="colon">:</td><td class="value">${s.className}</td></tr>
+                                    <tr><td class="label">Date of Birth</td><td class="colon">:</td><td class="value">${s.dob}</td></tr>
+                                    <tr><td class="label">Blood Group</td><td class="colon">:</td><td class="value">${s.blood}</td></tr>
+                                    <tr><td class="label">Address</td><td class="colon">:</td><td class="value">${s.address}</td></tr>
+                                    <tr><td class="label">Contact No.</td><td class="colon">:</td><td class="value">${s.contact}</td></tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">${s.mandal}, ${s.district}, DISE: ${s.dise}</div>
+                    </div>
+                `;
+                grid.innerHTML += cardHTML;
+            });
+
+            previewArea.appendChild(grid);
+            window.print();
         });
     </script>
 </body>
